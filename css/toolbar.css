@@ -1,0 +1,16 @@
+/* Bottom floating toolbar pill: tool icons only */
+#bottom-toolbar{
+  position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg-surface);border:1px solid var(--border-surface);
+  border-radius:100px;padding:8px 10px;
+  box-shadow:0 4px 32px 4px rgba(0,0,0,0.24);
+  backdrop-filter:blur(16px);
+  z-index:35;
+}
+#bottom-toolbar .tool{
+  width:36px;height:36px;border-radius:100px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-dim);
+}
+#bottom-toolbar .tool img{width:20px;height:20px;}
+#bottom-toolbar .tool.active{background:var(--accent);color:#fff;}

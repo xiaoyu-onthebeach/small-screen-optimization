@@ -1,0 +1,51 @@
+/* Reset, theme variables, and the page/stage shell every component sits on */
+:root{
+  --bg-canvas:#0e0e10;
+  --bg-topbar:#131316;
+  --border-topbar:#40404A;
+  --bg-surface:rgba(38,38,44,0.88);
+  --border-surface:#2F2F37;
+  --bg-scene:#131316;
+  --border-scene:rgba(255,255,255,0.5);
+  --bg-rail:#17171a;
+  --text-main:#ffffff;
+  --text-dim:#9a9aa2;
+  --accent:#4570FF;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text-main);}
+#page{
+  width:100vw;height:100dvh;
+  background:#000;
+  overflow:auto;
+  /* Force classic, always-rendered scrollbars (not the OS's fade-in overlay
+     style) so the scroll affordance below the 1200x700 floor is actually
+     visible, not just technically present. */
+  scrollbar-color:#4a4a52 #0e0e10;
+}
+#page::-webkit-scrollbar{width:14px;height:14px;}
+#page::-webkit-scrollbar-track{background:#0e0e10;}
+#page::-webkit-scrollbar-thumb{background:#4a4a52;border-radius:8px;border:3px solid #0e0e10;}
+#page::-webkit-scrollbar-thumb:hover{background:#5a5a64;}
+#page::-webkit-scrollbar-corner{background:#0e0e10;}
+/* #stage is the simulated-viewport frame: real size by default, or a fixed
+   px box when a "simulated viewport" preset is active (see js/simulate.js).
+   1200x700 is the support floor — below that, #stage stops shrinking and
+   #page scrolls instead. margin:auto (not flex centering) is deliberate:
+   a block box with auto margins centers itself when it fits, but safely
+   collapses those margins to 0 and anchors to the top-left, fully
+   scrollable, when it overflows — flex's justify/align-content:center would
+   instead split the overflow evenly on both sides, pushing half of it to
+   negative scroll offsets that are unreachable by normal scrolling. */
+#stage{
+  position:relative;
+  width:100%;height:100%;
+  min-width:1200px;min-height:700px;
+  margin:auto;
+  background:var(--bg-canvas);
+  overflow:hidden;
+  box-shadow:0 0 0 1px #222;
+}
+#stage.simulated{
+  box-shadow:0 0 0 2px #333, 0 0 60px rgba(0,0,0,0.6);
+}

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beachside canvas — zoom &amp; collapse testbed</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/topbar.css">
+<link rel="stylesheet" href="css/layerlist.css">
+<link rel="stylesheet" href="css/taskbar.css">
+<link rel="stylesheet" href="css/taskbar-submenu.css">
+<link rel="stylesheet" href="css/canvas.css">
+<link rel="stylesheet" href="css/scene.css">
+<link rel="stylesheet" href="css/rail-panel.css">
+<link rel="stylesheet" href="css/toolbar.css">
+<link rel="stylesheet" href="css/hud.css">
+</head>
+<body>
+<div id="page">
+  <div id="stage">
+
+    <div id="topbar">
+      <div class="brand"><div class="dot"></div><b>Beachside</b>&nbsp;/&nbsp;Testing playground</div>
+      <div></div>
+    </div>
+
+    <div id="layerlist">
+      <div class="ll-header">
+        <span class="ll-title">SCENES</span>
+        <div class="ll-buttons">
+          <button class="ll-btn" id="layerlist-new" title="New scene"><img src="icons/new scene.svg" alt=""></button>
+          <button class="ll-btn" id="layerlist-toggle" title="Collapse"><img src="icons/collapse.svg" alt=""></button>
+        </div>
+      </div>
+      <div id="layerlist-resize-handle"></div>
+    </div>
+
+    <div id="taskbar"></div>
+
+    <div id="canvas">
+      <div class="ruler-top" id="ruler-top"></div>
+      <div class="ruler-left" id="ruler-left"></div>
+      <div id="avail-outline"></div>
+      <div id="canvas-content">
+        <div id="grid-layer"></div>
+        <div id="scene-frame"></div>
+      </div>
+      <div id="gen-panel">
+        <div class="g-head"><span>Generation panel</span><span class="x">✕</span></div>
+        <div class="g-body"></div>
+        <div class="g-foot">
+          <div class="stepper"><button>−</button><span>4</span><button>+</button></div>
+          <div class="reset">Reset</div>
+          <button class="generate">Generate</button>
+        </div>
+      </div>
+      <div id="scene-border"></div>
+      <div id="scene-inner">⇧</div>
+      <div id="scene-chrome">
+        <span class="name">Scene 131</span><span class="x">✕</span>
+      </div>
+    </div>
+
+    <div id="right-rail"></div>
+
+    <div id="bottom-toolbar">
+      <div class="tool active"><img src="icons/cursor.svg" alt="Select"></div>
+      <div class="tool"><img src="icons/hand.svg" alt="Pan"></div>
+      <div class="tool"><img src="icons/brush.svg" alt="Brush"></div>
+      <div class="tool"><img src="icons/erasor.svg" alt="Eraser"></div>
+    </div>
+
+  </div>
+</div>
+
+<button id="hud-collapsed-btn">Show debug HUD</button>
+<div id="hud">
+  <h3>Debug HUD <button id="hud-hide">hide</button></h3>
+
+  <div class="sec">
+    <label>Scene size preset</label>
+    <div class="row">
+      <label><input type="radio" name="scene" value="2048x2048" checked> 2048×2048</label>
+      <label><input type="radio" name="scene" value="2368x1728"> 2368×1728</label>
+      <label><input type="radio" name="scene" value="1536x2688"> 1536×2688</label>
+      <label><input type="radio" name="scene" value="1024x1024"> 1024×1024 (small)</label>
+    </div>
+  </div>
+
+  <div class="sec">
+    <label>Simulated viewport size</label>
+    <div class="simbtns">
+      <button data-sim="real" class="active">Real window</button>
+      <button data-sim="1280">1280w</button>
+      <button data-sim="1440">1440w</button>
+      <button data-sim="1680">1680w</button>
+      <button data-sim="1200x700">1200×700 floor</button>
+    </div>
+  </div>
+
+  <div class="sec" style="display:none">
+    <div class="row"><label><input type="checkbox" id="altZoomRule" checked> alt scaling rule</label></div>
+    <div class="hint">On: full-fit × 75%, capped by Max zoom cap below, floored at 15% (overrides Fit rule + Padding mode). Off: removes this rule, reverting to Fit rule + Padding mode.</div>
+  </div>
+
+  <div class="sec" id="fitRuleSec" style="display:none">
+    <label>Fit rule</label>
+    <div class="row">
+      <label><input type="radio" name="rule" value="A"> A — vertical only</label>
+      <label><input type="radio" name="rule" value="B" checked> B — min-fit (default)</label>
+    </div>
+    <div class="row"><label><input type="checkbox" id="showOutline"> show available-area outline</label></div>
+    <div class="row"><label><input type="checkbox" id="animate" checked> animate transitions</label></div>
+  </div>
+
+  <div class="sec" id="paddingModeSec" style="display:none">
+    <label>Padding mode</label>
+    <div class="row">
+      <label><input type="radio" name="padmode" value="percentage"> percentage</label>
+      <label><input type="radio" name="padmode" value="fixed"> fixed px</label>
+      <label><input type="radio" name="padmode" value="hybrid" checked> hybrid clamp</label>
+    </div>
+    <div id="ctrl-pct">
+      <label>margin % — <span class="val" id="v-marginPct">10</span>%</label>
+      <input type="range" id="marginPct" min="0" max="25" step="1" value="10">
+    </div>
+    <div id="ctrl-fixed" style="display:none">
+      <label>fixed pad — <span class="val" id="v-fixedPad">64</span>px</label>
+      <input type="range" id="fixedPad" min="0" max="200" step="1" value="64">
+    </div>
+    <div id="ctrl-hybrid">
+      <label>padMin — <span class="val" id="v-padMin">48</span>px</label>
+      <input type="range" id="padMin" min="0" max="150" step="1" value="48">
+      <label>padMax — <span class="val" id="v-padMax">160</span>px</label>
+      <input type="range" id="padMax" min="0" max="300" step="1" value="160">
+    </div>
+  </div>
+
+  <div class="sec" id="maxZoomSec" style="display:none">
+    <label>Max zoom cap — <span class="val" id="v-maxZoom">100</span>%</label>
+    <input type="range" id="maxZoom" min="25" max="100" step="1" value="100">
+  </div>
+
+  <div class="sec">
+    <label>Zoom control</label>
+    <div class="row">
+      <label><input type="radio" name="zoommode" value="auto" checked> auto (fit)</label>
+      <label><input type="radio" name="zoommode" value="manual"> manual</label>
+    </div>
+    <label>Manual zoom — <span class="val" id="v-manualZoom">100</span>%</label>
+    <input type="range" id="manualZoom" min="5" max="400" step="1" value="100">
+  </div>
+
+  <div class="sec">
+    <label>Task bar trigger width — <span class="val" id="v-taskbarBreakpoint">1480</span>px</label>
+    <input type="range" id="taskbarBreakpoint" min="100" max="1920" step="10" value="1480">
+    <div id="tbExpandModeSec" style="display:none">
+      <label>Hover-to-expand behavior</label>
+      <div class="row">
+        <label><input type="radio" name="tbExpandMode" value="push"> push content</label>
+        <label><input type="radio" name="tbExpandMode" value="overlay" checked> overlay (no shift)</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="readout"><span>Viewport</span><span class="v" id="r-viewport">–</span></div>
+    <div class="readout"><span>Available area</span><span class="v" id="r-avail">–</span></div>
+    <div class="readout"><span>Pad H / V</span><span class="v" id="r-pad">–</span></div>
+  </div>
+</div>
+
+<!-- Load order matters: each script is a plain (non-module) script sharing
+     one global scope, so definitions must precede their first use. -->
+<script src="js/constants.js"></script>
+<script src="js/icon-svgs.js"></script>
+<script src="js/state.js"></script>
+<script src="js/dom.js"></script>
+<script src="js/build-static.js"></script>
+<script src="js/rulers.js"></script>
+<script src="js/layout-engine.js"></script>
+<script src="js/layerlist-resize.js"></script>
+<script src="js/taskbar-hover.js"></script>
+<script src="js/taskbar-submenu.js"></script>
+<script src="js/taskbar-tooltip.js"></script>
+<script src="js/canvas-zoom.js"></script>
+<script src="js/canvas-pan.js"></script>
+<script src="js/simulate.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

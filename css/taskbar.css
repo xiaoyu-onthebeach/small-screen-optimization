@@ -1,0 +1,47 @@
+/* Floating task bar: expanded icon+label list, or collapsed icon-only rail below 1440px */
+#taskbar{
+  position:absolute;left:10px;top:74px;
+  width:180px;
+  background:var(--bg-surface);
+  border:1px solid var(--border-surface);
+  box-shadow:0 4px 32px 4px rgba(0,0,0,0.24);
+  backdrop-filter:blur(16px);
+  border-radius:16px;
+  padding:8px;
+  z-index:45;
+  transition:width .2s ease, left .2s ease;
+}
+#taskbar .item{
+  display:flex;align-items:center;gap:10px;
+  height:40px;padding:0 12px;border-radius:8px;
+  color:var(--text-main);font-size:14px;letter-spacing:-0.01em;
+  cursor:default;white-space:nowrap;overflow:hidden;
+}
+#taskbar .item:hover{background:#2c2c33;}
+#taskbar .item .ic{width:22px;height:22px;flex:none;text-align:center;font-size:15px;}
+#taskbar .item img.ic{object-fit:contain;}
+/* Models/Angle/Light icons are inline SVG (ICON_SVG, js/icon-svgs.js) with
+   fill="currentColor", so they recolor for free from .item's own `color` —
+   .active just needs to set that, no separate icon rule. (CSS mask-image
+   would be simpler but silently fails to load when this page is opened via
+   file://, which it must support — see js/icon-svgs.js for why.) */
+#taskbar .item .ic svg{width:100%;height:100%;display:block;}
+#taskbar .item .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;transition:opacity .15s ease;}
+#taskbar .item .chev{flex:none;color:var(--text-dim);}
+#taskbar .item.active{color:var(--accent);}
+#taskbar .item.active .chev{color:var(--accent);}
+#taskbar.collapsed{width:64px;}
+#taskbar.collapsed .item{justify-content:center;padding:0;position:relative;}
+#taskbar.collapsed .item .lbl{display:none;}
+#taskbar.collapsed .item .chev{display:none;}
+/* height stays 40px (matching the expanded row height above) so the total
+   stack height — and therefore #taskbar's own intrinsic height — doesn't
+   shift when toggling collapsed/expanded; only width/shape changes. */
+#taskbar.collapsed .item{width:44px;height:40px;margin:0 auto;}
+#taskbar.collapsed .item:hover::after{
+  content:attr(data-label);
+  position:absolute;left:110%;top:50%;transform:translateY(-50%);
+  background:#1a1a1e;border:1px solid #3a3a42;padding:4px 8px;border-radius:6px;
+  font-size:12px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.4);
+  pointer-events:none;
+}

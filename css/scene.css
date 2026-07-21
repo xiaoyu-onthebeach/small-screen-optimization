@@ -1,0 +1,62 @@
+/* Scene frame: just the background fill that lives inside canvas-content and
+   scales with zoom (it represents the actual 2048x2048 canvas). All of its
+   decoration — outer stroke, header, inner content border — is drawn as
+   unscaled chrome instead (see below), so strokes/text/padding stay a
+   constant screen size and the gap between the two borders never drifts
+   as zoom changes. */
+#scene-frame{
+  position:absolute;left:0;top:0;
+  background:var(--bg-scene);
+  border-radius:16px;
+  z-index:10;
+  transition:width .2s ease, height .2s ease;
+}
+
+/* Scene chrome (title + close) is a sibling of canvas-content, not a child
+   of #scene-frame — it sits outside the scaled "world" layer entirely, so
+   its font-size/padding are true screen pixels that don't grow or shrink
+   with zoom. js/layout-engine.js repositions/resizes (never rescales) it
+   every recompute to match the scene's current on-screen box. Its height
+   is driven by its own content (~44px) and js/layout-engine.js uses that
+   same 44px as SCENE_HEADER_H when it insets #scene-inner below it. */
+#scene-chrome{
+  position:absolute;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;
+  z-index:12;
+  pointer-events:none;
+  transition:left .2s ease, top .2s ease, width .2s ease;
+}
+#scene-chrome .name{font-size:13px;color:var(--text-main);}
+#scene-chrome .x{
+  width:24px;height:24px;border-radius:100px;background:#26262C;border:1px solid #40404A;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-dim);flex:none;
+}
+
+/* Non-scaling outer stroke: also a sibling of canvas-content, sized every
+   recompute to match #scene-frame's on-screen box exactly, but its
+   border-width is a fixed CSS value — never touched by the zoom transform,
+   so it renders as a consistent 1.5px line at any zoom level. */
+#scene-border{
+  position:absolute;
+  border:1.5px solid var(--border-scene);
+  border-radius:16px;
+  z-index:11;
+  pointer-events:none;
+  transition:left .2s ease, top .2s ease, width .2s ease, height .2s ease;
+}
+
+/* Non-scaling inner content border: inset from #scene-border by a fixed
+   SCENE_PAD on the sides/bottom and SCENE_HEADER_H below the title row on
+   top, recomputed every frame from the scene's live on-screen box — so the
+   gap between the outer and inner borders reads identically at any zoom. */
+#scene-inner{
+  position:absolute;
+  border:1px solid rgba(255,255,255,0.12);
+  display:flex;align-items:center;justify-content:center;
+  color:#3f3f46;font-size:40px;
+  overflow:hidden;
+  z-index:11;
+  pointer-events:none;
+  transition:left .2s ease, top .2s ease, width .2s ease, height .2s ease;
+}

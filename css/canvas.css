@@ -1,0 +1,31 @@
+/* Canvas viewport: clipping frame, rulers, and the scaled "world" layer
+   (dot grid + scene + future canvas objects) that js/layout-engine.js pans/zooms */
+#canvas{
+  position:absolute;left:0;right:0;top:56px;bottom:0;
+  overflow:hidden;
+  cursor:grab;
+}
+#canvas.panning{cursor:grabbing;}
+body.panning-active{user-select:none;}
+#canvas-content{
+  position:absolute;left:0;top:0;
+  transform-origin:0 0;
+  transition:transform .2s ease;
+}
+#grid-layer{
+  position:absolute;left:-20000px;top:-20000px;width:40000px;height:40000px;
+  background-image:radial-gradient(circle,#26262b 1px, transparent 1px);
+  background-size:24px 24px;
+}
+.ruler-left{
+  position:absolute;top:0;left:0;bottom:0;width:20px;
+  background:repeating-linear-gradient(to bottom, #2a2a30 0 1px, transparent 1px 50px);
+  border-right:1px solid #232327;
+  z-index:5;
+}
+
+/* Debug overlay showing the target layout region (js/hud.js "show available-area outline") */
+#avail-outline{
+  position:absolute;border:1px dashed #4570FF88;pointer-events:none;z-index:6;display:none;
+}
+#avail-outline.visible{display:block;}

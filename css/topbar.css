@@ -1,0 +1,12 @@
+/* Top bar: logo dot + breadcrumb, fixed full-width strip */
+#topbar{
+  position:absolute;left:0;right:0;top:0;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg-topbar);
+  border-bottom:1px solid var(--border-topbar);
+  padding:0 16px;
+  z-index:50;
+}
+#topbar .brand{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-dim);}
+#topbar .brand .dot{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#6a7dff,#4570FF);flex:none;}
+#topbar .brand b{color:var(--text-main);font-weight:500;}

@@ -1,0 +1,50 @@
+/* Right rail: thin fixed strip, always-on-top chrome — never moves, never
+   scales, and (highest z-index of anything on screen) can never be covered
+   by canvas content panned/zoomed underneath it. */
+#right-rail{
+  position:absolute;right:0;top:56px;bottom:0;width:40px;
+  background:var(--bg-rail);border-left:1px solid #202024;
+  z-index:50;
+}
+
+/* Generation panel is chrome — a sibling of canvas-content (like
+   scene-chrome/scene-border), not a child of it — so its own size is a
+   fixed 360x575 that never changes with zoom. js/layout-engine.js
+   repositions (never rescales) it every recompute to stay docked 16px off
+   the scene's right edge, top-aligned with it, tracking the scene as it
+   pans/zooms. z-index sits below the layer bar/task bar/right rail (see
+   their z-indexes) so it still slides behind that fixed chrome, same as
+   the scene itself does. */
+#gen-panel{
+  position:absolute;width:360px;height:575px;
+  background:var(--bg-surface);border:1px solid var(--border-surface);
+  box-shadow:0 4px 32px 4px rgba(0,0,0,0.24);
+  backdrop-filter:blur(16px);
+  border-radius:16px;
+  z-index:13;
+  display:flex;flex-direction:column;
+  transition:left .2s ease, top .2s ease;
+}
+#gen-panel .g-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;border-bottom:1px solid #50505D;flex:none;
+}
+#gen-panel .g-head span{font-size:16px;}
+#gen-panel .g-head .x{
+  width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-dim);cursor:default;font-size:14px;
+}
+#gen-panel .g-body{flex:1;}
+#gen-panel .g-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;
+}
+#gen-panel .stepper{display:flex;align-items:center;gap:8px;color:var(--text-dim);font-size:14px;}
+#gen-panel .stepper button{
+  width:24px;height:24px;border-radius:100px;background:#26262C;border:1px solid #40404A;color:#fff;
+}
+#gen-panel .g-foot .reset{color:var(--text-dim);font-size:14px;}
+#gen-panel .g-foot .generate{
+  background:var(--accent);color:#fff;border:none;border-radius:100px;
+  padding:10px 24px;font-size:16px;font-weight:600;
+}

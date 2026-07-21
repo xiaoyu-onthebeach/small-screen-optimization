@@ -1,0 +1,32 @@
+/* Debug HUD: the always-visible control panel used to tune zoom/padding/breakpoint params */
+#hud{
+  position:fixed;right:12px;top:12px;width:300px;max-height:96vh;overflow-y:auto;
+  background:#0c0c0e;border:1px solid #2c2c32;border-radius:12px;
+  padding:14px;font-size:12px;color:#d6d6db;z-index:1000;
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+}
+#hud h3{margin:0 0 8px;font-size:13px;color:#fff;display:flex;align-items:center;justify-content:space-between;}
+#hud h3 button{background:none;border:none;color:#888;font-size:11px;cursor:pointer;}
+#hud .sec{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #202024;}
+#hud .sec:last-child{border-bottom:none;}
+#hud label{display:block;margin:4px 0 2px;color:#9a9aa2;}
+#hud .row{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;}
+#hud .row label{margin:0;display:flex;align-items:center;gap:4px;color:#d6d6db;font-weight:normal;}
+#hud input[type=range]{width:100%;}
+#hud input[type=radio],#hud input[type=checkbox]{accent-color:var(--accent);}
+#hud .val{color:#fff;font-variant-numeric:tabular-nums;}
+#hud .readout{display:flex;justify-content:space-between;padding:2px 0;color:#b8b8bf;}
+#hud .readout .v{color:#fff;}
+#hud .simbtns{display:flex;flex-wrap:wrap;gap:4px;}
+#hud .simbtns button{
+  background:#1a1a1e;border:1px solid #2c2c32;color:#d6d6db;border-radius:6px;
+  padding:4px 8px;font-size:11px;cursor:pointer;
+}
+#hud .simbtns button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+#hud .hint{font-size:11px;color:#7a7a82;line-height:1.4;margin-top:2px;}
+#hud-collapsed-btn{
+  position:fixed;right:12px;top:12px;z-index:1001;
+  background:#0c0c0e;border:1px solid #2c2c32;color:#fff;border-radius:8px;
+  padding:6px 10px;font-size:12px;cursor:pointer;display:none;
+}
+.warn{color:#ffb454;}
