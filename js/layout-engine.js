@@ -19,6 +19,18 @@ function recompute(){
   // exact collapsed extreme switches to the icon-only CSS layout
   // (.collapsed, centered thumbnails/no labels) — anything wider uses the
   // normal label layout, truncating via ellipsis as it narrows.
+  //
+  // Until the user has manually set a width (drag or the toggle button —
+  // state.layerListWidthManuallySet), it instead tracks this recompute's
+  // own vw live: collapsed below LAYERLIST_COLLAPSE_VW, expanded at/above.
+  // This reads the same vw every other breakpoint in this function uses
+  // (the stage's real size, which js/simulate.js's HUD buttons resize
+  // directly) rather than window.innerWidth, so switching "Simulated
+  // viewport size" presets collapses/expands it too, not just actually
+  // resizing the browser window.
+  if(!state.layerListWidthManuallySet){
+    state.layerListWidth = vw < LAYERLIST_COLLAPSE_VW ? LAYERLIST_W_COLLAPSED : LAYERLIST_W_EXPANDED;
+  }
   const layerListW = clamp(LAYERLIST_W_COLLAPSED, state.layerListWidth, LAYERLIST_W_EXPANDED);
   layerlistEl.classList.toggle('collapsed', layerListW <= LAYERLIST_W_COLLAPSED);
   layerlistEl.style.width = layerListW + 'px';

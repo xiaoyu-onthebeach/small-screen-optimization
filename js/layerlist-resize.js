@@ -43,6 +43,11 @@ document.getElementById('layerlist-resize-handle').addEventListener('mousedown',
   e.preventDefault();
   layerListDragStartX = e.clientX;
   layerListDragStartWidth = clamp(LAYERLIST_W_COLLAPSED, state.layerListWidth, LAYERLIST_W_EXPANDED);
+  // Mark manual *before* the first drag recompute — otherwise
+  // layout-engine.js's reactive default would immediately overwrite
+  // layerListWidth with the breakpoint value on the very next frame,
+  // fighting the drag from the first pixel of movement.
+  state.layerListWidthManuallySet = true;
   layerListDragging = true;
   layerListDragFrozenZoom = state.currentZoom;
   e.target.classList.add('dragging');

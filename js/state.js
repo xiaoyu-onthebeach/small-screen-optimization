@@ -34,7 +34,18 @@ const state = {
   // Continuous drag-resizable width (js/layerlist-resize.js), clamped
   // between LAYERLIST_W_COLLAPSED and LAYERLIST_W_EXPANDED — the "+" button
   // (js/hud.js) just snaps this to whichever extreme it isn't currently at.
-  layerListWidth:LAYERLIST_W_EXPANDED,
+  // Placeholder until the first recompute() — see layerListWidthManuallySet.
+  layerListWidth: LAYERLIST_W_EXPANDED,
+  // false until the user drags the handle or clicks the toggle (or a
+  // manually-set width was restored below): while false, js/layout-engine.js
+  // keeps layerListWidth reactively pinned to LAYERLIST_COLLAPSE_VW every
+  // recompute — collapsed below it, expanded at/above — tracking whatever
+  // vw currently is, real *or* simulated (js/simulate.js's HUD buttons
+  // resize #stage directly, never window.innerWidth, so this has to read
+  // the same live vw the rest of the layout math uses, not check window
+  // size once at load). The moment the user manually sets a width, this
+  // flips permanently true and the reactive default stops touching it.
+  layerListWidthManuallySet: false,
   scenePreset:'2048x2048',
   showOutline:false,
   animate:true,
@@ -57,7 +68,10 @@ const LAYERLIST_WIDTH_STORAGE_KEY = 'beachside.layerListWidth';
     const saved = localStorage.getItem(LAYERLIST_WIDTH_STORAGE_KEY);
     if(saved === null) return;
     const n = Number(saved);
-    if(!Number.isNaN(n)) state.layerListWidth = clamp(LAYERLIST_W_COLLAPSED, n, LAYERLIST_W_EXPANDED);
+    if(!Number.isNaN(n)){
+      state.layerListWidth = clamp(LAYERLIST_W_COLLAPSED, n, LAYERLIST_W_EXPANDED);
+      state.layerListWidthManuallySet = true;
+    }
   }catch(e){}
 })();
 

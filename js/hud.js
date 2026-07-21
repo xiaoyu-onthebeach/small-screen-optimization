@@ -36,6 +36,7 @@ document.getElementById('taskbarBreakpoint').addEventListener('input',e=>{state.
 document.querySelectorAll('input[name=tbExpandMode]').forEach(r=>r.addEventListener('change',e=>{state.taskbarExpandMode=e.target.value;recompute();}));
 document.getElementById('layerlist-toggle').addEventListener('click',()=>{
   state.layerListWidth = state.layerListWidth > LAYERLIST_W_COLLAPSED ? LAYERLIST_W_COLLAPSED : LAYERLIST_W_EXPANDED;
+  state.layerListWidthManuallySet = true;
   persistLayerListWidth();
   recompute();
 });

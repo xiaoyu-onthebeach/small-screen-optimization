@@ -46,6 +46,12 @@ const ICON_CHECK_MD = '<svg width="16" height="16" viewBox="0 0 16 16" fill="non
 const TOPBAR_H = 56;
 const LAYERLIST_W_EXPANDED = 328;
 const LAYERLIST_W_COLLAPSED = 88;
+// Below this viewport width, the layer list *starts* collapsed on a fresh
+// visit (no manually-set width saved yet — see js/state.js). Purely a
+// load-time default, not a live breakpoint: once a width is saved, it wins
+// on every future load regardless of viewport size, so resizing the
+// browser window mid-session never fights a width the user chose on purpose.
+const LAYERLIST_COLLAPSE_VW = 1480;
 const TASKBAR_OFFSET = 16;   // gap from layer list right edge to taskbar left edge
 const TASKBAR_W_EXPANDED = 230;
 const TASKBAR_W_COLLAPSED = 64;
