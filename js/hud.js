@@ -37,7 +37,6 @@ document.querySelectorAll('input[name=tbExpandMode]').forEach(r=>r.addEventListe
 document.getElementById('layerlist-toggle').addEventListener('click',()=>{
   state.layerListWidth = state.layerListWidth > LAYERLIST_W_COLLAPSED ? LAYERLIST_W_COLLAPSED : LAYERLIST_W_EXPANDED;
   state.layerListWidthManuallySet = true;
-  persistLayerListWidth();
   recompute();
 });
 document.querySelectorAll('input[name=scene]').forEach(r=>r.addEventListener('change',e=>{state.scenePreset=e.target.value;recompute();}));

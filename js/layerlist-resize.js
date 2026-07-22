@@ -11,9 +11,9 @@
 // alongside it) grow/shrink live as a floating overlay on top of the
 // canvas, without reflowing or rescaling the scene/generation panel
 // underneath mid-drag. Both freezes lift the instant the drag ends, letting
-// the canvas settle fit to the final width — which is also persisted
-// (js/state.js) so a reload fits against that same reserved space instead
-// of resetting to default.
+// the canvas settle fit to the final width — which is NOT persisted (see
+// js/state.js's layerListWidthManuallySet), so a reload forgets it and the
+// LAYERLIST_COLLAPSE_VW breakpoint default takes over again.
 
 let layerListDragging = false;
 let layerListDragFrozenZoom = null;
@@ -33,7 +33,6 @@ function onLayerListDragEnd(){
   layerlistEl.style.transition = '';
   document.removeEventListener('mousemove', onLayerListDrag);
   document.removeEventListener('mouseup', onLayerListDragEnd);
-  persistLayerListWidth();
   // Zoom was frozen throughout the drag — recompute once more now that
   // it's lifted, so the view settles fit to the final width.
   recompute();

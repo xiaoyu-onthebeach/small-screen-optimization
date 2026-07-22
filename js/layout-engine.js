@@ -54,7 +54,10 @@ function recompute(){
   // Above TASKBAR_STATIC_VW the bar is pinned expanded and the collapsing
   // interaction is disabled outright — neither the breakpoint slider nor a
   // just-made sub-menu selection (taskbarForceCollapsed) can collapse it.
-  const TASKBAR_STATIC_VW = 1500;
+  // Must stay above state.taskbarBreakpoint's default (1512) — otherwise
+  // this ceiling clamps collapsed permanently false before the breakpoint
+  // ever gets a chance to fire, nullifying it entirely at the default.
+  const TASKBAR_STATIC_VW = 1520;
   const collapsed = vw <= TASKBAR_STATIC_VW && (vw < state.taskbarBreakpoint || state.taskbarForceCollapsed);
 
   const hoverExpanded = collapsed && state.taskbarHovered;

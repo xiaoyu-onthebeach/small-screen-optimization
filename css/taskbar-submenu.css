@@ -6,6 +6,10 @@
   position:absolute;
   z-index:60;
 }
+.tb-flyout-caption{
+  font-size:12px;line-height:16px;color:rgba(255,255,255,0.65);
+  margin-bottom:8px;
+}
 .tb-flyout{
   display:flex;flex-direction:column;align-items:stretch;
   padding:4px;

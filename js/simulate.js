@@ -1,6 +1,7 @@
 // "Simulated viewport size" HUD buttons: letterbox #stage to a fixed
-// width (or width+height, for the 1200×700 support-floor preset) so
-// breakpoints can be exercised without resizing the actual browser window.
+// width (or an exact width x height, for presets whose data-sim is
+// "WxH" — e.g. the 1200×700 support floor) so breakpoints can be
+// exercised without resizing the actual browser window.
 
 document.querySelectorAll('.simbtns button').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -11,8 +12,9 @@ document.querySelectorAll('.simbtns button').forEach(btn=>{
     if(sim==='real'){
       stage.style.width='100%'; stage.style.height='100%';
       stage.classList.remove('simulated');
-    } else if(sim==='1200x700'){
-      stage.style.width='1200px'; stage.style.height='700px';
+    } else if(sim.includes('x')){
+      const [w,h] = sim.split('x').map(Number);
+      stage.style.width = w+'px'; stage.style.height = h+'px';
       stage.classList.add('simulated');
     } else {
       stage.style.width = sim+'px'; stage.style.height='100%';
