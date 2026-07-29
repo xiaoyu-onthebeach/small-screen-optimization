@@ -5,18 +5,12 @@
 // duration of the drag (restored after) since animating every mousemove
 // frame would make the drag feel laggy instead of tracking the cursor.
 //
-// layerListDragging/layerListDragStartWidth/layerListDragFrozenZoom (read by
-// js/layout-engine.js) hold both zoom AND the canvas's space reservation
-// fixed for the duration of the drag — the panel (and the task bar riding
-// alongside it) grow/shrink live as a floating overlay on top of the
-// canvas, without reflowing or rescaling the scene/generation panel
-// underneath mid-drag. Both freezes lift the instant the drag ends, letting
-// the canvas settle fit to the final width — which is NOT persisted (see
-// js/state.js's layerListWidthManuallySet), so a reload forgets it and the
-// LAYERLIST_COLLAPSE_VW breakpoint default takes over again.
+// js/layout-engine.js's canvas-space math always assumes the panel is
+// collapsed regardless of its real width, so dragging it wider is purely a
+// visual overlay on top of the canvas — it never reflows or rescales the
+// scene/generation panel, dragging or not, so no zoom/reservation freeze is
+// needed here (there's nothing live to freeze).
 
-let layerListDragging = false;
-let layerListDragFrozenZoom = null;
 let layerListDragStartX = 0;
 let layerListDragStartWidth = 0;
 
@@ -27,28 +21,16 @@ function onLayerListDrag(e){
 }
 
 function onLayerListDragEnd(){
-  layerListDragging = false;
-  layerListDragFrozenZoom = null;
   document.getElementById('layerlist-resize-handle').classList.remove('dragging');
   layerlistEl.style.transition = '';
   document.removeEventListener('mousemove', onLayerListDrag);
   document.removeEventListener('mouseup', onLayerListDragEnd);
-  // Zoom was frozen throughout the drag — recompute once more now that
-  // it's lifted, so the view settles fit to the final width.
-  recompute();
 }
 
 document.getElementById('layerlist-resize-handle').addEventListener('mousedown', (e)=>{
   e.preventDefault();
   layerListDragStartX = e.clientX;
   layerListDragStartWidth = clamp(LAYERLIST_W_COLLAPSED, state.layerListWidth, LAYERLIST_W_EXPANDED);
-  // Mark manual *before* the first drag recompute — otherwise
-  // layout-engine.js's reactive default would immediately overwrite
-  // layerListWidth with the breakpoint value on the very next frame,
-  // fighting the drag from the first pixel of movement.
-  state.layerListWidthManuallySet = true;
-  layerListDragging = true;
-  layerListDragFrozenZoom = state.currentZoom;
   e.target.classList.add('dragging');
   layerlistEl.style.transition = 'none';
   document.addEventListener('mousemove', onLayerListDrag);

@@ -46,15 +46,16 @@ const ICON_CHECK_MD = '<svg width="16" height="16" viewBox="0 0 16 16" fill="non
 const TOPBAR_H = 56;
 const LAYERLIST_W_EXPANDED = 328;
 const LAYERLIST_W_COLLAPSED = 88;
-// Below this viewport width, the layer list *starts* collapsed on a fresh
-// visit (no manually-set width saved yet — see js/state.js). Purely a
-// load-time default, not a live breakpoint: once a width is saved, it wins
-// on every future load regardless of viewport size, so resizing the
-// browser window mid-session never fights a width the user chose on purpose.
-const LAYERLIST_COLLAPSE_VW = 1513;
+// Below this viewport width, the smart hint popup (js/smarthint.js) uses
+// its compact size instead of its big one. Not related to the layer list
+// (which always starts collapsed regardless of viewport size — see
+// js/state.js) despite the name's history; kept as one shared constant
+// since it's the same 1513px breakpoint the rest of the app's responsive
+// chrome (task bar, breathing-room factor) clusters around.
+const SMARTHINT_COMPACT_VW = 1513;
 const TASKBAR_OFFSET = 16;   // gap from layer list right edge to taskbar left edge
-const TASKBAR_W_EXPANDED = 230;
-const TASKBAR_W_COLLAPSED = 64;
+const TASKBAR_W_EXPANDED = 196; // must match #taskbar's real CSS width (css/taskbar.css) — a stale mismatch here directly skews the gap between the task bar and the scene, since panX is left-anchored (not centered) off of it
+const TASKBAR_W_COLLAPSED = 80;
 const RAIL_W = 40;
 const PANEL_W = 360;
 const PANEL_INSET = 24;

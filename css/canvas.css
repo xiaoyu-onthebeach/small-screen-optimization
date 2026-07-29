@@ -24,8 +24,12 @@ body.panning-active{user-select:none;}
   z-index:5;
 }
 
-/* Debug overlay showing the target layout region (js/hud.js "show available-area outline") */
+/* Debug overlay showing the target layout region — localX0/X1/Y0/Y1, the
+   reserved area zoom/pan fit against (js/hud.js "show reserved area
+   overlay"). Filled, not just outlined, so the reserved region reads as a
+   highlight at a glance rather than requiring you to trace a thin border. */
 #avail-outline{
   position:absolute;border:1px dashed #4570FF88;pointer-events:none;z-index:6;display:none;
+  background:rgba(69,112,255,0.3);
 }
 #avail-outline.visible{display:block;}

@@ -1,0 +1,72 @@
+/* Smart hint popup: a dismissible suggestion banner pinned to the top-right
+   corner of the canvas viewport (js/smarthint.js positions/sizes it — see
+   that file for why it can't be pure CSS media queries). Sits above the
+   scene/generation panel (z-index 13) but below the persistent layer list/
+   task bar/right rail, same tier logic as the rest of the floating canvas
+   chrome. right:56px = RAIL_W(40) + 16px gap, so it clears the right rail
+   rather than rendering underneath that always-on-top strip. */
+#smarthint{
+  position:absolute;
+  top:16px;
+  right:56px;
+  box-sizing:border-box;
+  display:flex;flex-direction:row;align-items:flex-start;
+  padding:16px;
+  gap:16px;
+  background:rgba(38,38,44,0.88);
+  box-shadow:0 4px 32px 4px rgba(0,0,0,0.24);
+  backdrop-filter:blur(16px);
+  border-radius:16px;
+  z-index:14;
+  transition:width .2s ease, height .2s ease;
+}
+#smarthint.hidden{display:none;}
+
+#smarthint .sh-icon{flex:none;display:block;}
+
+#smarthint .sh-content{
+  display:flex;flex-direction:column;align-items:flex-start;
+  gap:8px;
+  flex:1;min-width:0;
+}
+#smarthint .sh-text{
+  margin:0;align-self:stretch;
+  font-family:inherit;font-size:14px;line-height:22px;
+  color:#fff;
+}
+#smarthint .sh-actions{
+  display:flex;flex-direction:row;align-items:flex-start;
+  gap:8px;flex:none;
+}
+#smarthint .sh-btn{
+  box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;
+  height:24px;padding:0 8px;
+  border-radius:4px;border:none;background:none;
+  font-family:inherit;font-size:14px;line-height:22px;
+  color:rgba(255,255,255,0.85);
+  cursor:pointer;white-space:nowrap;
+}
+#smarthint .sh-btn-primary{
+  width:79px;
+  background:#26262C;
+  border:1px solid #40404A;
+}
+#smarthint .sh-btn-plain{
+  width:52px;
+}
+
+/* Big — viewport >= LAYERLIST_COLLAPSE_VW (js/smarthint.js toggles .compact).
+   Height is intentionally NOT a fixed px value — it's driven by content
+   (icon height vs. text+actions height, whichever is taller, plus the
+   16px padding on top/bottom) so longer hint text that wraps to 3+ lines
+   grows the card instead of overflowing past a hardcoded height. This still
+   renders at exactly 122px/108px for the original 2-line copy — those were
+   never independent numbers, just what this same content naturally sizes to. */
+#smarthint{width:400px;}
+#smarthint .sh-icon{width:90px;height:90px;}
+
+/* Small — viewport < LAYERLIST_COLLAPSE_VW */
+#smarthint.compact{width:334px;padding:12px;gap:12px;}
+#smarthint.compact .sh-icon{width:40px;height:40px;}
+#smarthint.compact .sh-text{line-height:22px;}

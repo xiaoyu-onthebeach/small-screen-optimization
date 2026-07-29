@@ -18,34 +18,22 @@ function recompute(){
   // (js/hud.js) just snaps it to whichever extreme it isn't at. Only the
   // exact collapsed extreme switches to the icon-only CSS layout
   // (.collapsed, centered thumbnails/no labels) — anything wider uses the
-  // normal label layout, truncating via ellipsis as it narrows.
-  //
-  // Until the user has manually set a width (drag or the toggle button —
-  // state.layerListWidthManuallySet), it instead tracks this recompute's
-  // own vw live: collapsed below LAYERLIST_COLLAPSE_VW, expanded at/above.
-  // This reads the same vw every other breakpoint in this function uses
-  // (the stage's real size, which js/simulate.js's HUD buttons resize
-  // directly) rather than window.innerWidth, so switching "Simulated
-  // viewport size" presets collapses/expands it too, not just actually
-  // resizing the browser window.
-  if(!state.layerListWidthManuallySet){
-    state.layerListWidth = vw < LAYERLIST_COLLAPSE_VW ? LAYERLIST_W_COLLAPSED : LAYERLIST_W_EXPANDED;
-  }
+  // normal label layout, truncating via ellipsis as it narrows. Always
+  // starts collapsed (state.js) and is never auto-changed by viewport size.
   const layerListW = clamp(LAYERLIST_W_COLLAPSED, state.layerListWidth, LAYERLIST_W_EXPANDED);
   layerlistEl.classList.toggle('collapsed', layerListW <= LAYERLIST_W_COLLAPSED);
   layerlistEl.style.width = layerListW + 'px';
 
-  // layerListW above is the panel's real, live width — always used for its
-  // own box and for taskbar.style.left below, so the task bar visually
-  // slides along with it, staying adjacent with no gap or overlap. But
-  // while actively drag-resizing (js/layerlist-resize.js), canvas-affecting
-  // math uses this frozen reservation instead, held at whatever the width
-  // was when the drag started — so the panel (and the task bar riding along
-  // with it) grow/shrink as a floating overlay *on top of* the canvas
-  // without reflowing the scene/generation panel underneath, mid-drag. The
-  // freeze lifts (and the canvas reflows to fit the settled width) the
-  // instant the drag ends, same as the zoom freeze below.
-  const layerListReserveW = layerListDragging ? layerListDragStartWidth : layerListW;
+  // layerListW above is the panel's real, live width — used for its own box
+  // and for taskbar.style.left below, so the task bar visually slides along
+  // with it, staying adjacent with no gap or overlap. But canvas-affecting
+  // math (localX0 below) always assumes it's collapsed, regardless of its
+  // real width or drag state — expanding the panel is purely a floating
+  // overlay *on top of* the canvas, never reflowing or rescaling the scene/
+  // generation panel underneath. This also means zoom no longer needs a
+  // separate drag-freeze: since the reservation never reacts to the panel's
+  // width in the first place, dragging it simply can't move the scene.
+  const layerListReserveW = LAYERLIST_W_COLLAPSED;
 
   // breakpoint / task bar state. "collapsed" is the natural breakpoint
   // state; hovering a collapsed bar shows it expanded (visualCollapsed)
@@ -91,20 +79,25 @@ function recompute(){
 
   // available area, expressed in #canvas-local coordinates (top-left of
   // #canvas is already below the top bar, so no TOPBAR_H offset here).
-  // Canvas layout tracks the layer bar's *real*, continuously-resizable
-  // width (state.layerListWidth) via layerListW — so resizing it actually
-  // reserves/frees that space, and the fit/zoom + pan recompute live as it's
-  // dragged: narrower gives the scene more room (zooms in further), wider
-  // gives it less (zooms out to keep clearing it). TASKBAR_GAP is
-  // reserved here too (not just as a later pan clamp) so the zoom itself
-  // — not just the pan — accounts for it; otherwise a snug-fit scene could
-  // get pushed right by that clamp with nowhere to absorb it, overflowing
-  // the generation panel off the right edge at tight widths.
+  // Canvas layout always assumes the layer bar's *collapsed* footprint
+  // (layerListReserveW), regardless of its real width — so expanding it
+  // never reserves more space, zoom never reacts to it, and it just
+  // visually overlays the canvas instead. TASKBAR_GAP is reserved here too
+  // (not just as a later pan clamp) so the zoom itself — not just the pan —
+  // accounts for it; otherwise a snug-fit scene could get pushed right by
+  // that clamp with nowhere to absorb it, overflowing the generation panel
+  // off the right edge at tight widths.
   const TASKBAR_GAP = 16;
   const localX0 = layerListReserveW + TASKBAR_OFFSET + taskbarLayoutW + TASKBAR_GAP;
   const localX1 = vw - rightSpace;
   const availableWidth = Math.max(0, localX1 - localX0);
 
+  // The smart hint popup (js/smarthint.js, fixed to the canvas's top-right
+  // corner) can end up covering the generation panel's header, which tracks
+  // the scene's own top. Reserving vertical space here (raising localY0) was
+  // the first fix, but it pushed the whole scene down and left a big dead
+  // strip above it. Fixed properly below instead, by left-anchoring panX —
+  // see its own comment — so localY0 stays simply 0.
   const localY0 = 0;
   const localY1 = canvasH - BOTTOM_CLEARANCE;
   const availableHeight = Math.max(0, localY1 - localY0);
@@ -172,15 +165,6 @@ function recompute(){
     zoom = clamp(0.05, zoom, state.maxZoomCap/100);
   }
 
-  // While the layer list is being drag-resized (js/layerlist-resize.js),
-  // hold zoom at whatever it was the moment the drag started — resizing
-  // should only shift how much room the scene has to re-pan into, not
-  // rescale it out from under the cursor. The freeze lifts (and zoom
-  // re-fits normally) the instant the drag ends.
-  if(layerListDragging && layerListDragFrozenZoom !== null){
-    zoom = layerListDragFrozenZoom;
-  }
-
   if(state.zoomMode==='manual'){
     zoom = clamp(0.05, state.manualZoom/100, 4);
     // wheel-zoom (js/canvas-zoom.js) changes state.manualZoom directly
@@ -220,7 +204,16 @@ function recompute(){
     panX = state.manualPanX;
     panY = state.manualPanY;
   } else {
-    panX = localX0 + (availableWidth - sceneWpx)/2;
+    // Left-anchored, not centered: sit right at localX0 (which already
+    // bakes in a padding gap off the task bar — see its own definition)
+    // instead of splitting the leftover width evenly on both sides. This
+    // leaves any slack between the fit zoom and the available width
+    // entirely on the RIGHT, between the generation panel and the right
+    // rail — which is exactly where the smart hint popup lives, so it
+    // naturally gets more clearance instead of needing localY0 to push the
+    // whole scene down (the previous approach, which left a dead strip
+    // above the scene instead of using that space).
+    panX = localX0;
     panY = localY0 + (availableHeight - sceneHpx)/2;
 
     // Keep a minimum gap between the scene and the task bar's *natural*
@@ -229,11 +222,9 @@ function recompute(){
     // during hover-overlay (taskbarLayoutW frozen smaller so the expanded
     // bar can visually cover the scene without shoving it over) — this
     // clamp only still does work in that case, catching what localX0
-    // couldn't know about. It deliberately ignores taskbarHovered, and uses
-    // layerListReserveW (not the live layerListW) so it doesn't fight the
-    // same drag-overlay freeze localX0 uses — otherwise this clamp would
-    // shove the scene along with a live-dragged layer list it's supposed to
-    // be able to sit under. It only pins where the scene *starts*.
+    // couldn't know about. It deliberately ignores taskbarHovered — hover-
+    // expanding the task bar can still visually cover the scene, this only
+    // pins where the scene *starts*.
     const taskbarNaturalW = collapsed ? TASKBAR_W_COLLAPSED : TASKBAR_W_EXPANDED;
     const taskbarNaturalRight = layerListReserveW + TASKBAR_OFFSET + taskbarNaturalW;
     panX = Math.max(panX, taskbarNaturalRight + TASKBAR_GAP);
@@ -307,4 +298,6 @@ function recompute(){
   if(typeof repositionOpenSubmenu==='function') repositionOpenSubmenu();
   // Same for a currently-showing hover preview tooltip (js/taskbar-tooltip.js).
   if(typeof repositionTaskbarTooltip==='function') repositionTaskbarTooltip();
+  // Smart hint popup (js/smarthint.js) swaps big/compact at the same vw.
+  if(typeof updateSmartHint==='function') updateSmartHint(vw);
 }

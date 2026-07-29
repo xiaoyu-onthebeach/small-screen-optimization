@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/taskbar.css">
 <link rel="stylesheet" href="css/taskbar-submenu.css">
 <link rel="stylesheet" href="css/canvas.css">
+<link rel="stylesheet" href="css/smarthint.css">
 <link rel="stylesheet" href="css/scene.css">
 <link rel="stylesheet" href="css/rail-panel.css">
 <link rel="stylesheet" href="css/toolbar.css">
@@ -41,6 +42,16 @@
       <div class="ruler-top" id="ruler-top"></div>
       <div class="ruler-left" id="ruler-left"></div>
       <div id="avail-outline"></div>
+      <div id="smarthint">
+        <img class="sh-icon" src="icons/smarthint-bg.png" alt="">
+        <div class="sh-content">
+          <p class="sh-text">Your original image is well outside the expanded area. The generated image might be surprising.</p>
+          <div class="sh-actions">
+            <button class="sh-btn sh-btn-primary">Use Blend</button>
+            <button class="sh-btn sh-btn-plain" id="smarthint-close">Close</button>
+          </div>
+        </div>
+      </div>
       <div id="canvas-content">
         <div id="grid-layer"></div>
         <div id="scene-frame"></div>
@@ -111,7 +122,7 @@
       <label><input type="radio" name="rule" value="A"> A — vertical only</label>
       <label><input type="radio" name="rule" value="B" checked> B — min-fit (default)</label>
     </div>
-    <div class="row"><label><input type="checkbox" id="showOutline"> show available-area outline</label></div>
+    <div class="row"><label><input type="checkbox" id="showOutline"> show reserved area overlay</label></div>
     <div class="row"><label><input type="checkbox" id="animate" checked> animate transitions</label></div>
   </div>
 
@@ -180,6 +191,7 @@
 <script src="js/dom.js"></script>
 <script src="js/build-static.js"></script>
 <script src="js/rulers.js"></script>
+<script src="js/smarthint.js"></script>
 <script src="js/layout-engine.js"></script>
 <script src="js/layerlist-resize.js"></script>
 <script src="js/taskbar-hover.js"></script>

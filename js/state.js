@@ -34,21 +34,10 @@ const state = {
   // Continuous drag-resizable width (js/layerlist-resize.js), clamped
   // between LAYERLIST_W_COLLAPSED and LAYERLIST_W_EXPANDED — the "+" button
   // (js/hud.js) just snaps this to whichever extreme it isn't currently at.
-  // Placeholder until the first recompute() — see layerListWidthManuallySet.
-  layerListWidth: LAYERLIST_W_EXPANDED,
-  // false until the user drags the handle or clicks the toggle: while
-  // false, js/layout-engine.js keeps layerListWidth reactively pinned to
-  // LAYERLIST_COLLAPSE_VW every recompute — collapsed below it, expanded
-  // at/above — tracking whatever vw currently is, real *or* simulated
-  // (js/simulate.js's HUD buttons resize #stage directly, never
-  // window.innerWidth, so this has to read the same live vw the rest of
-  // the layout math uses, not check window size once at load). Once the
-  // user manually sets a width this flips true for the rest of THIS page
-  // view (so the reactive default stops fighting it, and switching
-  // simulated viewport sizes doesn't discard the choice) — but it's
-  // in-memory only, never persisted, so a reload starts over at false and
-  // the breakpoint default takes over again every single time.
-  layerListWidthManuallySet: false,
+  // Always starts collapsed (js/layout-engine.js's canvas-space math also
+  // permanently assumes collapsed, regardless of this value — expanding is
+  // purely a visual overlay on top of the canvas, see its own comment).
+  layerListWidth: LAYERLIST_W_COLLAPSED,
   scenePreset:'2048x2048',
   showOutline:false,
   animate:true,

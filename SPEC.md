@@ -95,13 +95,23 @@ Turning the alt rule on visually disables (dims, `pointer-events:none`) the Fit 
 
 Independent of which rule is active: fit zoom is clamped to never exceed this cap (default 100%, slider 25–100%). Prevents a small scene on a large viewport from being blown up past its own actual size (blurriness). The bottom-toolbar zoom readout shows a ⚠ and turns amber when the cap is actively clipping the computed fit.
 
+### Smart hint popup — left-anchored positioning, not a vertical reservation
+
+The smart hint popup (`#smarthint`, fixed to the canvas's top-right corner) switches between a big (400×122) and compact (334×108) size at `SMARTHINT_COMPACT_VW` (1513px). It can visually overlap the generation panel's header, which tracks the scene's own top.
+
+An earlier version fixed this by reserving the popup's footprint in `localY0` (pushing the whole scene, and the panel riding along with it, down to clear it). That guaranteed no overlap, but left a dead empty strip above the scene whenever the popup was showing — rejected as not worth the tradeoff.
+
+**Current approach:** `localY0` stays a flat `0` always. Instead, the auto-fit `panX` is **left-anchored** (`panX = localX0`) rather than centered (`localX0 + (availableWidth - sceneWidthPx) / 2`) — any slack between the fit zoom and the available width now lands entirely on the right, between the generation panel and the right rail, which is exactly where the popup lives. This gives the panel more clearance in most cases without sacrificing vertical space.
+
+This is a deliberate, accepted tradeoff, not a full fix: left-anchoring only changes *where* the scene starts, not *how big* it renders, so at higher zoom (which happens naturally on taller/roomier viewports) the scene+panel column can still be wide enough that the panel's right edge reaches under the popup regardless of anchor point. Confirmed overlap-free at 1920×600 and 1600×1000; confirmed *still overlapping* at 1920×1080 and 1200×800 (the compact case the popup was originally built for). Revisit if this turns out to matter in practice — the fix would be reserving width in `localX1` the same way `localY0` used to reserve height, which would fully eliminate it at the cost of a smaller scene whenever the popup is visible.
+
 ## 5. Responsive collapse behavior — the decisions
 
-### Left layer list — **no auto-collapse**
+### Left layer list — **no auto-collapse, always overlay**
 
-Purely a manual toggle. `state.layerListExpanded` (default `true`, i.e. **expanded by default**) flips only when the **"+" button** (`#layerlist-toggle`) is clicked — no breakpoint, no HUD control. There is no "auto" mode for this element at all.
+`state.layerListWidth` — continuously drag-resizable (drag `#layerlist-resize-handle` on its right edge), clamped between `LAYERLIST_W_COLLAPSED` (88) and `LAYERLIST_W_EXPANDED` (328); the **"+" button** (`#layerlist-toggle`) just snaps it to whichever extreme it isn't at. **Always starts collapsed** on every page load, regardless of viewport size — no breakpoint, no HUD control, and not persisted (a reload never remembers a manually-set width).
 
-Expanding/collapsing **never pushes canvas content**: the available-area calculation always assumes the layer list's *collapsed* footprint (`LAYERLIST_W_COLLAPSED`), regardless of its actual state. The scene, its zoom, and the generation panel are unaffected by this toggle — verified byte-identical before/after. The layer list's own box still visually grows to 328px when expanded; since its z-index (40) is well above the canvas world content, it simply overlays on top of the canvas underneath rather than the canvas moving out of its way. The task bar still repositions to track the layer list's *real* width (so it never overlaps the layer list itself), which is the one piece of chrome that *does* still shift — but that's chrome repositioning itself, not canvas content being pushed.
+Expanding/resizing **never pushes canvas content, at any width**: the available-area calculation always assumes the layer list's *collapsed* footprint (`LAYERLIST_W_COLLAPSED`), full stop — it doesn't matter whether the panel is actually collapsed, expanded, or mid-drag. The scene, its zoom, and the generation panel are completely unaffected by this panel's real width. The layer list's own box still visually grows up to 328px when expanded/dragged; since its z-index (40) is well above the canvas world content, it simply overlays on top of the canvas underneath rather than the canvas moving out of its way. The task bar still repositions to track the layer list's *real* width (so it never overlaps the layer list itself), which is the one piece of chrome that *does* still shift — but that's chrome repositioning itself, not canvas content being pushed.
 
 ### Task bar — **auto-collapse under 1480px, hover-to-expand, no push**
 
